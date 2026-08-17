@@ -21,7 +21,7 @@ export default function Contact() {
     const body = encodeURIComponent(
       `Nama: ${nama}\nEmail: ${email}\nPaket yang diminati: ${paket}\n\nPesan:\n${pesan}`
     );
-    window.location.href = `mailto:hello@zerooweb.id?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:zeroowebs@gmail.com?subject=${subject}&body=${body}`;
   };
 
   const containerVariants = {
@@ -81,7 +81,7 @@ export default function Contact() {
 
             {/* Contact Info List */}
             <motion.div variants={itemVariants} className="flex flex-col gap-6">
-              <a href="mailto:hello@zerooweb.id" className="flex items-start gap-4 group">
+              <a href="mailto:zeroowebs@gmail.com" className="flex items-start gap-4 group">
                 <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center shrink-0 group-hover:bg-accent/20 group-hover:scale-105 transition-all duration-300">
                   <Mail size={18} className="text-accent" />
                 </div>
@@ -90,7 +90,7 @@ export default function Contact() {
                     Email
                   </div>
                   <div className="text-[15.5px] font-medium text-white group-hover:text-accent-ink transition-colors duration-200">
-                    hello@zerooweb.id
+                    zeroowebs@gmail.com
                   </div>
                 </div>
               </a>
@@ -160,7 +160,7 @@ export default function Contact() {
                   >
                     <option value="Landing Page (Rp1–2 Juta)">Landing Page (Rp1–2 Juta)</option>
                     <option value="Landing Page + Admin Panel (Rp2–3 Juta)">Landing Page + Admin Panel (Rp2–3 Juta)</option>
-                    <option value="UMKM System (mulai Rp3 Juta)">UMKM System (mulai Rp3 Juta)</option>
+                    <option value="Custom System (mulai Rp3 Juta)">Custom System (mulai Rp3 Juta)</option>
                     <option value="Belum tahu, mau konsultasi dulu">Belum tahu, mau konsultasi dulu</option>
                   </select>
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
@@ -192,7 +192,7 @@ export default function Contact() {
               </button>
 
               <p className="text-[12px] text-white/40 leading-relaxed mt-2 text-center">
-                Pesan akan terkirim langsung ke hello@zerooweb.id
+                Pesan akan terkirim langsung ke zeroowebs@gmail.com
               </p>
             </form>
           </motion.div>
