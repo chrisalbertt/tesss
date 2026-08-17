@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Mail, Globe, Clock, Send } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, Clock, Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+
+// ── Web3Forms access key ───────────────────────────────────────
+// 1. Buka https://web3forms.com
+// 2. Masukkan email zeroowebs@gmail.com → klik "Get Access Key"
+// 3. Ganti string di bawah ini dengan access key yang didapat
+const WEB3FORMS_KEY = 'ca1dba92-4fe3-423e-835d-4ef49c1510ff';
+// ─────────────────────────────────────────────────────────────
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -9,19 +16,43 @@ export default function Contact() {
     paket: 'Landing Page (Rp1–2 Juta)',
     pesan: ''
   });
+  const [status, setStatus] = useState('idle'); // idle | loading | success | error
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const { nama, email, paket, pesan } = formData;
-    const subject = encodeURIComponent('Konsultasi Website — ' + nama);
-    const body = encodeURIComponent(
-      `Nama: ${nama}\nEmail: ${email}\nPaket yang diminati: ${paket}\n\nPesan:\n${pesan}`
-    );
-    window.location.href = `mailto:zeroowebs@gmail.com?subject=${subject}&body=${body}`;
+    setStatus('loading');
+
+    try {
+      const payload = {
+        access_key: WEB3FORMS_KEY,
+        subject: `Konsultasi Website — ${formData.nama}`,
+        from_name: formData.nama,
+        email: formData.email,
+        paket: formData.paket,
+        pesan: formData.pesan,
+      };
+
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setStatus('success');
+        setFormData({ nama: '', email: '', paket: 'Landing Page (Rp1–2 Juta)', pesan: '' });
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
   };
 
   const containerVariants = {
@@ -118,86 +149,147 @@ export default function Contact() {
             {/* Subtle inner glow */}
             <div className="absolute inset-0 bg-gradient-to-tr from-accent/0 via-accent/5 to-accent/0 rounded-[22px] pointer-events-none" />
 
-            <form onSubmit={handleSubmit} className="relative z-10 flex flex-col gap-5 text-left">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="nama" className="text-[13px] font-medium text-white/60">Nama</label>
-                  <input
-                    type="text"
-                    id="nama"
-                    name="nama"
-                    value={formData.nama}
-                    onChange={handleChange}
-                    placeholder="Nama kamu"
-                    required
-                    className="w-full bg-navy border border-line-dark rounded-xl px-4 py-3.5 text-[14.5px] text-white placeholder-white/30 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="email" className="text-[13px] font-medium text-white/60">Email</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="nama@email.com"
-                    required
-                    className="w-full bg-navy border border-line-dark rounded-xl px-4 py-3.5 text-[14.5px] text-white placeholder-white/30 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200"
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label htmlFor="paket" className="text-[13px] font-medium text-white/60">Paket yang diminati</label>
-                <div className="relative">
-                  <select
-                    id="paket"
-                    name="paket"
-                    value={formData.paket}
-                    onChange={handleChange}
-                    className="w-full bg-navy border border-line-dark rounded-xl px-4 py-3.5 text-[14.5px] text-white appearance-none focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200"
+            <AnimatePresence mode="wait">
+              {status === 'success' ? (
+                /* ── Success State ── */
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="relative z-10 flex flex-col items-center justify-center text-center py-8 gap-5"
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.1 }}
+                    className="w-20 h-20 rounded-full bg-accent/15 flex items-center justify-center"
                   >
-                    <option value="Landing Page (Rp1–2 Juta)">Landing Page (Rp1–2 Juta)</option>
-                    <option value="Landing Page + Admin Panel (Rp2–3 Juta)">Landing Page + Admin Panel (Rp2–3 Juta)</option>
-                    <option value="Custom System (mulai Rp3 Juta)">Custom System (mulai Rp3 Juta)</option>
-                    <option value="Belum tahu, mau konsultasi dulu">Belum tahu, mau konsultasi dulu</option>
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                    <CheckCircle size={42} className="text-accent" />
+                  </motion.div>
+                  <div>
+                    <h3 className="font-display font-bold text-2xl text-white mb-2">Pesan Terkirim! 🎉</h3>
+                    <p className="text-white/60 text-[14.5px] leading-relaxed">
+                      Terima kasih! Pesan kamu sudah masuk ke email kami.<br />
+                      Kami akan membalas dalam 1×24 jam.
+                    </p>
                   </div>
-                </div>
-              </div>
+                  <button
+                    onClick={() => setStatus('idle')}
+                    className="mt-2 px-6 py-2.5 rounded-xl border border-accent/30 text-accent text-[13.5px] font-medium hover:bg-accent/10 transition-all duration-200"
+                  >
+                    Kirim pesan lain
+                  </button>
+                </motion.div>
+              ) : (
+                /* ── Form State ── */
+                <motion.form
+                  key="form"
+                  onSubmit={handleSubmit}
+                  initial={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="relative z-10 flex flex-col gap-5 text-left"
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="nama" className="text-[13px] font-medium text-white/60">Nama</label>
+                      <input
+                        type="text"
+                        id="nama"
+                        name="nama"
+                        value={formData.nama}
+                        onChange={handleChange}
+                        placeholder="Nama kamu"
+                        required
+                        className="w-full bg-navy border border-line-dark rounded-xl px-4 py-3.5 text-[14.5px] text-white placeholder-white/30 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="email" className="text-[13px] font-medium text-white/60">Email</label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="nama@email.com"
+                        required
+                        className="w-full bg-navy border border-line-dark rounded-xl px-4 py-3.5 text-[14.5px] text-white placeholder-white/30 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200"
+                      />
+                    </div>
+                  </div>
 
-              <div className="flex flex-col gap-2">
-                <label htmlFor="pesan" className="text-[13px] font-medium text-white/60">Ceritakan usahamu</label>
-                <textarea
-                  id="pesan"
-                  name="pesan"
-                  value={formData.pesan}
-                  onChange={handleChange}
-                  placeholder="Usaha apa, kebutuhannya seperti apa, dan kapan targetnya online?"
-                  required
-                  rows={4}
-                  className="w-full bg-navy border border-line-dark rounded-xl px-4 py-3.5 text-[14.5px] text-white placeholder-white/30 resize-y min-h-[120px] focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200"
-                ></textarea>
-              </div>
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="paket" className="text-[13px] font-medium text-white/60">Paket yang diminati</label>
+                    <div className="relative">
+                      <select
+                        id="paket"
+                        name="paket"
+                        value={formData.paket}
+                        onChange={handleChange}
+                        className="w-full bg-navy border border-line-dark rounded-xl px-4 py-3.5 text-[14.5px] text-white appearance-none focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200"
+                      >
+                        <option value="Landing Page (Rp1–2 Juta)">Landing Page (Rp1–2 Juta)</option>
+                        <option value="Landing Page + Admin Panel (Rp2–3 Juta)">Landing Page + Admin Panel (Rp2–3 Juta)</option>
+                        <option value="Custom System (mulai Rp3 Juta)">Custom System (mulai Rp3 Juta)</option>
+                        <option value="Belum tahu, mau konsultasi dulu">Belum tahu, mau konsultasi dulu</option>
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                      </div>
+                    </div>
+                  </div>
 
-              <button
-                type="submit"
-                className="w-full mt-2 py-4 rounded-xl bg-accent text-[#16210a] font-semibold text-[15px] hover:shadow-lg hover:shadow-accent/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 group"
-              >
-                <span>Kirim Pesan</span>
-                <Send size={16} className="transform transition-transform duration-250 group-hover:translate-x-1 group-hover:-translate-y-1" />
-              </button>
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="pesan" className="text-[13px] font-medium text-white/60">Ceritakan usahamu</label>
+                    <textarea
+                      id="pesan"
+                      name="pesan"
+                      value={formData.pesan}
+                      onChange={handleChange}
+                      placeholder="Usaha apa, kebutuhannya seperti apa, dan kapan targetnya online?"
+                      required
+                      rows={4}
+                      className="w-full bg-navy border border-line-dark rounded-xl px-4 py-3.5 text-[14.5px] text-white placeholder-white/30 resize-y min-h-[120px] focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200"
+                    ></textarea>
+                  </div>
 
-              <p className="text-[12px] text-white/40 leading-relaxed mt-2 text-center">
-                Pesan akan terkirim langsung ke zeroowebs@gmail.com
-              </p>
-            </form>
+                  {/* Error message */}
+                  {status === 'error' && (
+                    <div className="flex items-center gap-2 text-red-400 text-[13px] bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+                      <AlertCircle size={16} className="shrink-0" />
+                      Gagal mengirim pesan. Coba lagi atau hubungi langsung via email.
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={status === 'loading'}
+                    className="w-full mt-2 py-4 rounded-xl bg-accent text-[#16210a] font-semibold text-[15px] hover:shadow-lg hover:shadow-accent/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  >
+                    {status === 'loading' ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        <span>Mengirim...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Kirim Pesan</span>
+                        <Send size={16} className="transform transition-transform duration-250 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                      </>
+                    )}
+                  </button>
+
+                  <p className="text-[12px] text-white/40 leading-relaxed mt-2 text-center">
+                    Pesan akan terkirim langsung ke zeroowebs@gmail.com
+                  </p>
+                </motion.form>
+              )}
+            </AnimatePresence>
           </motion.div>
         </motion.div>
       </div>
     </section>
   );
 }
+
